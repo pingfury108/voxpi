@@ -131,19 +131,49 @@ curl -X POST http://127.0.0.1:8000/v1/audio/speech \
 
 ## 部署
 
+### 方式一：runpulse（当前 Pi 400 上的用法）
+
+runpulse 是单二进制进程守护（daemon 由 systemd user + linger 拉起，开机自启，子进程崩溃自动重拉）。
+
 ```bash
-sudo mkdir -p /opt/voxpi
+# 1. 装 runpulse 并注册 daemon（只需一次）
+sudo loginctl enable-linger $USER
+cargo install runpulse            # 或拷贝静态二进制到 ~/.local/bin
+runpulse service install          # systemd user unit + 开机自启
+
+# 2. 摆好运行目录
+sudo mkdir -p /opt/voxpi/{lib,models}
 sudo cp bin/voxpi /opt/voxpi/
-sudo cp -a vendor/sherpa-onnx/lib /opt/voxpi/lib
-sudo cp -a models /opt/voxpi/models
-sudo cp voxpi.json /opt/voxpi/
+sudo cp vendor/sherpa-onnx/lib/*.so /opt/voxpi/lib/
+sudo cp -a models/vits-piper-* /opt/voxpi/models/
+sudo cp voxpi.json /opt/voxpi/     # 模型路径写绝对路径，listen 按需改
+
+# 3. 托管
+runpulse start /opt/voxpi/voxpi --name voxpi --cwd /opt/voxpi -- -config /opt/voxpi/voxpi.json
+```
+
+日常运维：
+
+```bash
+runpulse list                    # 状态、pid、重启次数
+runpulse logs voxpi -n 50        # 日志（stdout/stderr 直写文件，不经过 daemon）
+runpulse logs voxpi -f           # 实时跟踪
+runpulse restart voxpi           # 改完配置/换二进制后
+runpulse info voxpi --json       # 启动参数、cwd、重启策略
+```
+
+### 方式二：systemd
+
+不喜欢 runpulse 时用仓库里的 `deploy/voxpi.service`（两者不要同时启，会抢端口）：
+
+```bash
 sudo cp deploy/voxpi.service /etc/systemd/system/
 sudo systemctl enable --now voxpi
 ```
 
 二进制带 `-Wl,-rpath,$ORIGIN/lib`，库放同级 `lib/` 即可；service 里另外设了
-`LD_LIBRARY_PATH` 兜底。服务默认只监听 `127.0.0.1:8000`，公网入口交给 Caddy 或
-Cloudflare Tunnel，不要直接暴露树莓派。
+`LD_LIBRARY_PATH` 兜底。服务建议只监听 `127.0.0.1`，公网入口交给 Caddy 或 Cloudflare Tunnel，
+不要直接暴露树莓派。
 
 ## 已知限制 / 后续
 
