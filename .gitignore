@@ -1,0 +1,8 @@
+bin/
+vendor/
+models/
+voxpi.json
+*.wav
+*.pcm
+*.mp3
+.rdev/

@@ -1,0 +1,17 @@
+{
+  "listen": "127.0.0.1:8000",
+  "num_threads": 4,
+  "queue_size": 8,
+  "max_input_chars": 2000,
+  "models": {
+    "matcha-zh-baker": {
+      "engine": "matcha",
+      "model": "models/matcha-icefall-zh-baker/model-steps-3.onnx",
+      "vocoder": "models/vocos-22khz-univ.onnx",
+      "tokens": "models/matcha-icefall-zh-baker/tokens.txt",
+      "lexicon": "models/matcha-icefall-zh-baker/lexicon.txt",
+      "noise_scale": 1.0,
+      "length_scale": 1.0
+    }
+  }
+}

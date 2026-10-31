@@ -1,0 +1,30 @@
+[Unit]
+Description=VoxPi offline TTS API (sherpa-onnx)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/voxpi
+# libsherpa-onnx-c-api.so / libonnxruntime.so 放在 /opt/voxpi/lib
+Environment=LD_LIBRARY_PATH=/opt/voxpi/lib
+# 需要鉴权时取消注释（也可写进 voxpi.json 的 api_key）
+#Environment=VOXPI_API_KEY=change-me
+ExecStart=/opt/voxpi/voxpi -config /opt/voxpi/voxpi.json
+Restart=always
+RestartSec=3
+# 模型加载占内存，避免 OOM 抢系统
+MemoryMax=2500M
+Nice=5
+
+# 轻量加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/voxpi
+
+[Install]
+WantedBy=multi-user.target

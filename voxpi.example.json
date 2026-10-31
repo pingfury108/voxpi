@@ -1,0 +1,26 @@
+{
+  "listen": "127.0.0.1:8000",
+  "num_threads": 4,
+  "queue_size": 8,
+  "max_input_chars": 2000,
+  "models": {
+    "piper-zh-huayan": {
+      "engine": "vits",
+      "model": "models/vits-piper-zh_CN-huayan-medium/zh_CN-huayan-medium.onnx",
+      "tokens": "models/vits-piper-zh_CN-huayan-medium/tokens.txt",
+      "data_dir": "models/vits-piper-zh_CN-huayan-medium/espeak-ng-data",
+      "noise_scale": 0.667,
+      "noise_scale_w": 0.8,
+      "length_scale": 1.0
+    },
+    "piper-en-lessac": {
+      "engine": "vits",
+      "model": "models/vits-piper-en_US-lessac-medium/en_US-lessac-medium.onnx",
+      "tokens": "models/vits-piper-en_US-lessac-medium/tokens.txt",
+      "data_dir": "models/vits-piper-en_US-lessac-medium/espeak-ng-data",
+      "noise_scale": 0.667,
+      "noise_scale_w": 0.8,
+      "length_scale": 1.0
+    }
+  }
+}
